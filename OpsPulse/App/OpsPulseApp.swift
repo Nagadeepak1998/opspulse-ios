@@ -11,6 +11,7 @@ struct OpsPulseApp: App {
                 .environment(store)
                 .task {
                     await store.bootstrap()
+                    applyScreenshotRouteIfNeeded()
                 }
                 .onOpenURL { url in
                     store.handleDeepLink(url)
@@ -20,6 +21,19 @@ struct OpsPulseApp: App {
             if phase == .background {
                 Task { await store.persistSnapshot() }
             }
+        }
+    }
+
+    private func applyScreenshotRouteIfNeeded() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let routeIndex = arguments.firstIndex(of: "--screenshot-route"),
+              arguments.indices.contains(arguments.index(after: routeIndex)) else {
+            return
+        }
+
+        let route = arguments[arguments.index(after: routeIndex)]
+        if let url = URL(string: "opspulse://\(route)") {
+            store.handleDeepLink(url)
         }
     }
 }

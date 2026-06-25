@@ -109,6 +109,7 @@ def main() -> None:
     app_swift = sorted([*ROOT.glob("OpsPulse/**/*.swift"), *ROOT.glob("Sources/OpsPulseCore/**/*.swift")])
     widget_swift = sorted(ROOT.glob("OpsPulseWidget/*.swift"))
     assets = ROOT / "OpsPulse" / "Assets.xcassets"
+    app_info = ROOT / "OpsPulse" / "Info.plist"
 
     products_group_id = uid("group:Products")
     app_product_ref = add_file_ref(objects, "OpsPulse.app", Path("OpsPulse.app"), "BUILT_PRODUCTS_DIR", product=True)
@@ -117,6 +118,7 @@ def main() -> None:
     app_file_refs = [(path, add_file_ref(objects, f"app:{path}", path.relative_to(ROOT), "SOURCE_ROOT")) for path in app_swift]
     widget_file_refs = [(path, add_file_ref(objects, f"widget:{path}", path.relative_to(ROOT), "SOURCE_ROOT")) for path in widget_swift]
     assets_ref = add_file_ref(objects, "assets", assets.relative_to(ROOT), "SOURCE_ROOT")
+    app_info_ref = add_file_ref(objects, "app-info", app_info.relative_to(ROOT), "SOURCE_ROOT")
 
     app_build_files = [add_build_file(objects, f"app:{path}", file_ref) for path, file_ref in app_file_refs]
     widget_build_files = [add_build_file(objects, f"widget:{path}", file_ref) for path, file_ref in widget_file_refs]
@@ -179,11 +181,8 @@ def main() -> None:
         "CURRENT_PROJECT_VERSION": "1",
         "DEVELOPMENT_TEAM": "\"\"",
         "ENABLE_PREVIEWS": "YES",
-        "GENERATE_INFOPLIST_FILE": "YES",
-        "INFOPLIST_KEY_CFBundleDisplayName": "OpsPulse",
-        "INFOPLIST_KEY_LSApplicationCategoryType": "public.app-category.developer-tools",
-        "INFOPLIST_KEY_UIApplicationSceneManifest_Generation": "YES",
-        "INFOPLIST_KEY_UILaunchScreen_Generation": "YES",
+        "GENERATE_INFOPLIST_FILE": "NO",
+        "INFOPLIST_FILE": "OpsPulse/Info.plist",
         "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
         "MARKETING_VERSION": "1.0",
         "PRODUCT_BUNDLE_IDENTIFIER": "com.naga.OpsPulse",
@@ -246,7 +245,7 @@ def main() -> None:
     app_group = group(
         objects,
         "OpsPulse",
-        [file_ref for path, file_ref in app_file_refs if "Sources/OpsPulseCore" not in str(path)] + [assets_ref],
+        [file_ref for path, file_ref in app_file_refs if "Sources/OpsPulseCore" not in str(path)] + [assets_ref, app_info_ref],
         path="OpsPulse"
     )
     core_group = group(objects, "Sources", [file_ref for path, file_ref in app_file_refs if "Sources/OpsPulseCore" in str(path)], path="Sources")

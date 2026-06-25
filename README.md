@@ -33,22 +33,22 @@ SRE interviews often ask for practical judgment around incidents, SLOs, burn rat
 
 ## Screenshots
 
-Simulator screenshots should be captured after selecting a full Xcode install:
+Real iPhone Simulator screenshots are available in [docs/screenshots/linkedin](docs/screenshots/linkedin):
+
+- [Overview](docs/screenshots/linkedin/01-overview.png)
+- [Services](docs/screenshots/linkedin/02-services.png)
+- [Service detail](docs/screenshots/linkedin/03-service-detail.png)
+- [Incidents](docs/screenshots/linkedin/04-incidents.png)
+- [Incident detail](docs/screenshots/linkedin/05-incident-detail.png)
+- [Reliability Lab](docs/screenshots/linkedin/06-reliability-lab.png)
+
+Regenerate the LinkedIn/GitHub screenshot pack after selecting full Xcode:
 
 ```bash
-scripts/build_and_launch.sh
-scripts/capture_screenshots.sh
+scripts/capture_linkedin_screenshots.sh
 ```
 
-Expected files:
-
-- `docs/screenshots/overview.png`
-- `docs/screenshots/service-detail.png`
-- `docs/screenshots/active-incident.png`
-- `docs/screenshots/reliability-lab.png`
-- `docs/screenshots/post-incident-review.png`
-
-The current machine could not capture simulator screenshots because `xcodebuild` is pointed at Command Line Tools instead of full Xcode.
+The script builds the app, installs it on an iPhone simulator, launches each key screen, and captures PNG files with a clean simulator status bar.
 
 ## Architecture
 
@@ -122,6 +122,8 @@ Build and launch:
 scripts/build_and_launch.sh
 ```
 
+Developers with Mac and Xcode can clone this repository and run those scripts to test the app in the iPhone Simulator. Direct iPhone installation for non-developers requires TestFlight or App Store distribution.
+
 ## Demo Instructions
 
 1. Launch the app in demo mode.
@@ -172,7 +174,6 @@ The live adapter is disconnected by default. It is documented in [docs/API.md](d
 
 ## Known Limitations
 
-- Simulator build, launch, UI smoke tests, widget validation, and screenshots are blocked on this machine until full Xcode is installed or selected.
 - No real backend is bundled. Live mode is protocol-based and testable with a mock URL protocol.
 - The widget displays static demo counts in this first pass rather than reading shared app-group state.
 - Local notifications are demo-only and only scheduled for generated P1 incidents.
