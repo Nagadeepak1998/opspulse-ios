@@ -5,14 +5,24 @@ cd "$(dirname "$0")/.."
 source scripts/xcode_env.sh
 
 SCHEME="${SCHEME:-OpsPulse}"
-SIMULATOR_NAME="${SIMULATOR_NAME:-iPhone 16 Pro}"
+SIMULATOR_NAME="${SIMULATOR_NAME:-iPhone 17 Pro}"
 DERIVED_DATA="${DERIVED_DATA:-build/DerivedData}"
 BUNDLE_ID="${BUNDLE_ID:-com.naga.OpsPulse}"
+export SIMULATOR_NAME
+DEVICE_ID="$(SIMULATOR_NAME="$SIMULATOR_NAME" xcrun simctl list devices available -j | python3 -c 'import json, os, sys
+name = os.environ["SIMULATOR_NAME"]
+devices = [d for group in json.load(sys.stdin)["devices"].values() for d in group if d.get("isAvailable")]
+match = next((d for d in devices if d["name"] == name), None)
+if match is None:
+    match = next((d for d in devices if d["name"].startswith("iPhone")), None)
+if match is None:
+    sys.exit("No available iPhone simulator found.")
+print(match["udid"])')"
 
 xcodebuild \
   -project OpsPulse.xcodeproj \
   -scheme "$SCHEME" \
-  -destination "platform=iOS Simulator,name=${SIMULATOR_NAME}" \
+  -destination "platform=iOS Simulator,id=${DEVICE_ID}" \
   -derivedDataPath "$DERIVED_DATA" \
   CODE_SIGNING_ALLOWED=NO \
   build
@@ -20,16 +30,6 @@ xcodebuild \
 APP_PATH="$(find "$DERIVED_DATA/Build/Products/Debug-iphonesimulator" -name 'OpsPulse.app' -maxdepth 2 -print -quit)"
 if [[ -z "$APP_PATH" ]]; then
   echo "Could not locate OpsPulse.app under $DERIVED_DATA" >&2
-  exit 1
-fi
-
-DEVICE_ID="$(xcrun simctl list devices available | awk -v name="$SIMULATOR_NAME" '$0 ~ name && $0 ~ /Booted/ {gsub(/[()]/, "", $NF); print $NF; exit}')"
-if [[ -z "$DEVICE_ID" ]]; then
-  DEVICE_ID="$(xcrun simctl list devices available | awk -v name="$SIMULATOR_NAME" '$0 ~ name {gsub(/[()]/, "", $NF); print $NF; exit}')"
-fi
-if [[ -z "$DEVICE_ID" ]]; then
-  echo "No available simulator named $SIMULATOR_NAME." >&2
-  xcrun simctl list devices available >&2
   exit 1
 fi
 

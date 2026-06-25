@@ -187,7 +187,7 @@ def main() -> None:
         "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
         "MARKETING_VERSION": "1.0",
         "PRODUCT_BUNDLE_IDENTIFIER": "com.naga.OpsPulse",
-        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "PRODUCT_NAME": "\"$(TARGET_NAME)\"",
         "SUPPORTED_PLATFORMS": "\"iphoneos iphonesimulator\"",
         "SWIFT_VERSION": "6.0",
         "TARGETED_DEVICE_FAMILY": "\"1,2\"",
@@ -206,7 +206,7 @@ def main() -> None:
         "IPHONEOS_DEPLOYMENT_TARGET": "18.0",
         "MARKETING_VERSION": "1.0",
         "PRODUCT_BUNDLE_IDENTIFIER": "com.naga.OpsPulse.widget",
-        "PRODUCT_NAME": "$(TARGET_NAME)",
+        "PRODUCT_NAME": "\"$(TARGET_NAME)\"",
         "SKIP_INSTALL": "YES",
         "SUPPORTED_PLATFORMS": "\"iphoneos iphonesimulator\"",
         "SWIFT_VERSION": "6.0",
@@ -243,7 +243,12 @@ def main() -> None:
         f"productReference = {widget_product_ref}; productType = \"com.apple.product-type.app-extension\"; }};"
     )
 
-    app_group = group(objects, "OpsPulse", [file_ref for _, file_ref in app_file_refs] + [assets_ref], path="OpsPulse")
+    app_group = group(
+        objects,
+        "OpsPulse",
+        [file_ref for path, file_ref in app_file_refs if "Sources/OpsPulseCore" not in str(path)] + [assets_ref],
+        path="OpsPulse"
+    )
     core_group = group(objects, "Sources", [file_ref for path, file_ref in app_file_refs if "Sources/OpsPulseCore" in str(path)], path="Sources")
     widget_group = group(objects, "OpsPulseWidget", [file_ref for _, file_ref in widget_file_refs], path="OpsPulseWidget")
     products_group = group(objects, "Products", [app_product_ref, widget_product_ref], name="Products")
